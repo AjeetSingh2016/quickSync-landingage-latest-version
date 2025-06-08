@@ -68,7 +68,10 @@ export function AuthProvider({ children }) {
         });
       }
 
-      // Stay on current page after login - user is already where they want to be
+      // Only redirect to app.quicksync.online if user is on the landing page
+      if (window.location.hostname === 'quicksync.online' || window.location.hostname === 'www.quicksync.online') {
+        window.location.href = 'https://app.quicksync.online';
+      }
     } catch (error) {
       console.error('Error signing in with Google:', error);
     }

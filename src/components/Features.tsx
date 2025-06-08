@@ -1,10 +1,21 @@
-
 'use client';
 
 import { motion } from 'framer-motion';
 import { Zap, Shield, Smartphone, Cloud, Lock, RefreshCw } from 'lucide-react';
+import { useAuth } from '@/lib/auth-context';
 
 const Features = () => {
+  const { user, signInWithGoogle } = useAuth();
+
+  const handleGetStarted = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (user) {
+      window.location.href = 'https://app.quicksync.online';
+    } else {
+      signInWithGoogle();
+    }
+  };
+
   const features = [
     {
       icon: Zap,
@@ -67,22 +78,22 @@ const Features = () => {
   };
 
   return (
-    <section className="py-24 bg-white">
+    <section className="py-16 sm:py-24 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
           viewport={{ once: true }}
-          className="text-center mb-16"
+          className="text-center mb-12 sm:mb-16"
         >
-          <h2 className="text-3xl md:text-5xl font-bold mb-4">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-4">
             Powerful Features,
             <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent block">
               Zero Cost
             </span>
           </h2>
-          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+          <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto px-4">
             Everything you need to manage your links and tasks efficiently, 
             with enterprise-grade security and reliability.
           </p>
@@ -93,7 +104,7 @@ const Features = () => {
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true }}
-          className="grid md:grid-cols-2 lg:grid-cols-3 gap-8"
+          className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8"
         >
           {features.map((feature, index) => (
             <motion.div
@@ -102,16 +113,16 @@ const Features = () => {
               whileHover={{ y: -5, scale: 1.02 }}
               className="group"
             >
-              <div className="bg-white rounded-2xl p-8 shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300">
-                <div className={`w-16 h-16 bg-gradient-to-br ${feature.gradient} rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300`}>
-                  <feature.icon className="w-8 h-8 text-white" />
+              <div className="bg-white rounded-2xl p-6 sm:p-8 shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300">
+                <div className={`w-12 sm:w-16 h-12 sm:h-16 bg-gradient-to-br ${feature.gradient} rounded-2xl flex items-center justify-center mb-4 sm:mb-6 group-hover:scale-110 transition-transform duration-300`}>
+                  <feature.icon className="w-6 sm:w-8 h-6 sm:h-8 text-white" />
                 </div>
                 
-                <h3 className="text-xl font-semibold mb-3 text-gray-900">
+                <h3 className="text-lg sm:text-xl font-semibold mb-2 sm:mb-3 text-gray-900">
                   {feature.title}
                 </h3>
                 
-                <p className="text-muted-foreground leading-relaxed">
+                <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
                   {feature.description}
                 </p>
               </div>
@@ -125,26 +136,24 @@ const Features = () => {
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.3 }}
           viewport={{ once: true }}
-          className="text-center mt-16"
+          className="text-center mt-12 sm:mt-16"
         >
-          <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-3xl p-8 md:p-12">
-            <h3 className="text-2xl md:text-3xl font-bold mb-4">
+          <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-3xl p-6 sm:p-8 md:p-12">
+            <h3 className="text-xl sm:text-2xl md:text-3xl font-bold mb-3 sm:mb-4">
               Ready to get started?
             </h3>
-            <p className="text-muted-foreground mb-8 max-w-2xl mx-auto">
+            <p className="text-sm sm:text-base text-muted-foreground mb-6 sm:mb-8 max-w-2xl mx-auto">
               Join thousands of users who trust QuickSync to keep their digital life organized.
             </p>
-            <motion.a
-              href="https://play.google.com/store/apps/details?id=com.ajeet.quicksync&pcampaignid=web_share"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-xl font-semibold hover:from-blue-600 hover:to-purple-700 transition-all duration-300"
+            <motion.button
+              onClick={handleGetStarted}
+              className="inline-flex items-center px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-xl font-semibold hover:from-blue-600 hover:to-purple-700 transition-all duration-300 w-full sm:w-auto text-base sm:text-lg"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
-              Get Started Now
+              {user ? 'Go to App' : 'Get Started Now'}
               <Zap className="ml-2 w-5 h-5" />
-            </motion.a>
+            </motion.button>
           </div>
         </motion.div>
       </div>
