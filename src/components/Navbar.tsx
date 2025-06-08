@@ -1,0 +1,109 @@
+
+'use client';
+
+import { useState } from 'react';
+import { motion } from 'framer-motion';
+import { Menu, X, Zap } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+
+const Navbar = () => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  const navItems = [
+    { name: 'Features', href: '/features' },
+    { name: 'Download', href: '/download' },
+    { name: 'About', href: '/about' },
+    { name: 'Support', href: '/support' },
+  ];
+
+  return (
+    <nav className="fixed top-0 w-full bg-background/80 backdrop-blur-md border-b z-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center h-16">
+          {/* Logo */}
+          <motion.div 
+            className="flex items-center space-x-2"
+            whileHover={{ scale: 1.05 }}
+            transition={{ type: "spring", stiffness: 400, damping: 10 }}
+          >
+            <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+              <Zap className="w-5 h-5 text-white" />
+            </div>
+            <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              QuickSync
+            </span>
+          </motion.div>
+
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex items-center space-x-8">
+            {navItems.map((item) => (
+              <motion.a
+                key={item.name}
+                href={item.href}
+                className="text-muted-foreground hover:text-foreground transition-colors"
+                whileHover={{ y: -2 }}
+                transition={{ type: "spring", stiffness: 300 }}
+              >
+                {item.name}
+              </motion.a>
+            ))}
+            <Button 
+              className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white"
+              asChild
+            >
+              <motion.a
+                href="/download"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                Get Started Free
+              </motion.a>
+            </Button>
+          </div>
+
+          {/* Mobile menu button */}
+          <div className="md:hidden">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsOpen(!isOpen)}
+            >
+              {isOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </Button>
+          </div>
+        </div>
+
+        {/* Mobile Navigation */}
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="md:hidden py-4 space-y-4"
+          >
+            {navItems.map((item) => (
+              <a
+                key={item.name}
+                href={item.href}
+                className="block text-muted-foreground hover:text-foreground transition-colors"
+                onClick={() => setIsOpen(false)}
+              >
+                {item.name}
+              </a>
+            ))}
+            <Button 
+              className="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white"
+              asChild
+            >
+              <a href="/download" onClick={() => setIsOpen(false)}>
+                Get Started Free
+              </a>
+            </Button>
+          </motion.div>
+        )}
+      </div>
+    </nav>
+  );
+};
+
+export default Navbar;
