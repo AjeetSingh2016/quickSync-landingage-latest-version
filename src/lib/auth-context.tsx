@@ -30,19 +30,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setPersistence(auth, browserLocalPersistence).catch(console.error);
   }, []);
 
-  // Listen for auth state changes
+  // Listen for auth state changes - NO automatic redirects
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setUser(user);
       setLoading(false);
-
-      // If logged in AND on main domain, redirect to app subdomain
-      if (
-        user &&
-        window.location.hostname === 'www.quicksync.online'
-      ) {
-        window.location.href = 'https://app.quicksync.online';
-      }
     });
 
     return () => unsubscribe();
@@ -66,7 +58,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         });
       }
 
-      // Redirect after login if on landing page domain
+      // Redirect to app after successful login
       if (window.location.hostname === 'www.quicksync.online') {
         window.location.href = 'https://app.quicksync.online';
       }
@@ -78,11 +70,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = async () => {
     try {
       await firebaseSignOut(auth);
-
-      // Redirect to landing page if logged out from app subdomain
-      if (window.location.hostname === 'app.quicksync.online') {
-        window.location.href = 'https://www.quicksync.online';
-      }
+      // Stay on current page after logout - user can navigate manually
     } catch (error) {
       console.error('Error signing out:', error);
     }
