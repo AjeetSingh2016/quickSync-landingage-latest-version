@@ -2,13 +2,20 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Menu, X, Zap } from 'lucide-react';
+import { Menu, X, Zap, LogOut, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/lib/auth-context';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const { user, signInWithGoogle } = useAuth();
+  const { user, signInWithGoogle, logout } = useAuth();
 
   const navItems = [
     { name: 'Features', href: '/features' },
@@ -53,12 +60,33 @@ const Navbar = () => {
                 {item.name}
               </motion.a>
             ))}
-            <Button 
-              className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white"
-              onClick={handleGetStarted}
-            >
-              {user ? 'Go to App' : 'Get Started Free'}
-            </Button>
+            {user ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                    <Avatar className="h-8 w-8">
+                      <AvatarImage src={user.photoURL || undefined} alt={user.displayName || 'User'} />
+                      <AvatarFallback>
+                        {user.displayName?.[0] || user.email?.[0] || 'U'}
+                      </AvatarFallback>
+                    </Avatar>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem className="flex items-center gap-2" onClick={logout}>
+                    <LogOut className="h-4 w-4" />
+                    <span>Logout</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Button 
+                className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white"
+                onClick={handleGetStarted}
+              >
+                Get Started Free
+              </Button>
+            )}
           </div>
 
           {/* Mobile menu button */}
@@ -91,15 +119,29 @@ const Navbar = () => {
                 {item.name}
               </a>
             ))}
-            <Button 
-              className="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white"
-              onClick={(e) => {
-                setIsOpen(false);
-                handleGetStarted(e);
-              }}
-            >
-              {user ? 'Go to App' : 'Get Started Free'}
-            </Button>
+            {user ? (
+              <Button 
+                variant="ghost"
+                className="w-full flex items-center justify-center gap-2"
+                onClick={() => {
+                  setIsOpen(false);
+                  logout();
+                }}
+              >
+                <LogOut className="h-4 w-4" />
+                <span>Logout</span>
+              </Button>
+            ) : (
+              <Button 
+                className="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white"
+                onClick={(e) => {
+                  setIsOpen(false);
+                  handleGetStarted(e);
+                }}
+              >
+                Get Started Free
+              </Button>
+            )}
           </motion.div>
         )}
       </div>

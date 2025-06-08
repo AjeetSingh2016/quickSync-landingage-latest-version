@@ -1,6 +1,16 @@
-import { createContext, useContext, useEffect, useState } from 'react';
-import { User, signInWithPopup, signOut } from 'firebase/auth';
-import { auth, googleProvider } from './firebase';
+'use client';
+
+import React, { createContext, useContext, useEffect, useState } from 'react';
+import {
+  signInWithPopup,
+  signOut as firebaseSignOut,
+  onAuthStateChanged,
+  setPersistence,
+  browserLocalPersistence,
+  User,
+} from 'firebase/auth';
+import { doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
+import { auth, db, googleProvider } from './firebase';
 
 interface AuthContextType {
   user: User | null;
@@ -15,14 +25,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // Set Firebase auth persistence on mount
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((user) => {
+    setPersistence(auth, browserLocalPersistence).catch(console.error);
+  }, []);
+
+  // Listen for auth state changes
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setUser(user);
       setLoading(false);
 
-      // Check if we're on the main domain and user is authenticated
-      if (user && window.location.hostname === 'www.quicksync.online') {
-        // Redirect to app subdomain
+      // If logged in AND on main domain, redirect to app subdomain
+      if (
+        user &&
+        window.location.hostname === 'www.quicksync.online'
+      ) {
         window.location.href = 'https://app.quicksync.online';
       }
     });
@@ -33,8 +51,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signInWithGoogle = async () => {
     try {
       const result = await signInWithPopup(auth, googleProvider);
-      if (result.user) {
-        // Redirect to app subdomain after successful sign in
+      const user = result.user;
+
+      // Create user doc if not exists
+      const userRef = doc(db, 'users', user.uid);
+      const userSnap = await getDoc(userRef);
+      if (!userSnap.exists()) {
+        await setDoc(userRef, {
+          uid: user.uid,
+          email: user.email,
+          displayName: user.displayName,
+          photoURL: user.photoURL,
+          createdAt: serverTimestamp(),
+        });
+      }
+
+      // Redirect after login if on landing page domain
+      if (window.location.hostname === 'www.quicksync.online') {
         window.location.href = 'https://app.quicksync.online';
       }
     } catch (error) {
@@ -44,8 +77,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const logout = async () => {
     try {
-      await signOut(auth);
-      // If on app subdomain, redirect to main domain after logout
+      await firebaseSignOut(auth);
+
+      // Redirect to landing page if logged out from app subdomain
       if (window.location.hostname === 'app.quicksync.online') {
         window.location.href = 'https://www.quicksync.online';
       }
@@ -56,7 +90,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <AuthContext.Provider value={{ user, loading, signInWithGoogle, logout }}>
-      {children}
+      {!loading && children}
     </AuthContext.Provider>
   );
 }
@@ -67,4 +101,4 @@ export function useAuth() {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
-} 
+}
