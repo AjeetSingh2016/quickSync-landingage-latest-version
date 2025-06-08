@@ -1,11 +1,18 @@
-
 'use client';
 
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, Smartphone, Laptop, Tablet } from 'lucide-react';
+import { useAuth } from '@/lib/auth-context';
 
 const Hero = () => {
+  const { user, signInWithGoogle } = useAuth();
+
+  const handleGetStarted = (e: React.MouseEvent) => {
+    e.preventDefault();
+    signInWithGoogle();
+  };
+
   return (
     <section className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50 pt-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid lg:grid-cols-2 gap-12 items-center">
@@ -56,19 +63,10 @@ const Hero = () => {
             <Button 
               size="lg"
               className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-8 py-4 text-lg"
-              asChild
+              onClick={handleGetStarted}
             >
-              <motion.a
-                href="https://play.google.com/store/apps/details?id=com.ajeet.quicksync&pcampaignid=web_share"
-                target="_blank"
-                rel="noopener noreferrer"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="inline-flex items-center"
-              >
-                Download Now
-                <ArrowRight className="ml-2 w-5 h-5" />
-              </motion.a>
+              {user ? 'Go to App' : 'Get Started'}
+              <ArrowRight className="ml-2 w-5 h-5" />
             </Button>
             
             <Button 
@@ -96,7 +94,7 @@ const Hero = () => {
           >
             <div className="flex items-center">
               <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
-              No Registration Required
+              Secure Authentication
             </div>
             <div className="flex items-center">
               <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>

@@ -1,13 +1,14 @@
-
 'use client';
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Menu, X, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useAuth } from '@/lib/auth-context';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const { user, signInWithGoogle } = useAuth();
 
   const navItems = [
     { name: 'Features', href: '/features' },
@@ -15,6 +16,11 @@ const Navbar = () => {
     { name: 'About', href: '/about' },
     { name: 'Support', href: '/support' },
   ];
+
+  const handleGetStarted = (e: React.MouseEvent) => {
+    e.preventDefault();
+    signInWithGoogle();
+  };
 
   return (
     <nav className="fixed top-0 w-full bg-background/80 backdrop-blur-md border-b z-50">
@@ -49,15 +55,9 @@ const Navbar = () => {
             ))}
             <Button 
               className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white"
-              asChild
+              onClick={handleGetStarted}
             >
-              <motion.a
-                href="/download"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                Get Started Free
-              </motion.a>
+              {user ? 'Go to App' : 'Get Started Free'}
             </Button>
           </div>
 
@@ -93,11 +93,12 @@ const Navbar = () => {
             ))}
             <Button 
               className="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white"
-              asChild
+              onClick={(e) => {
+                setIsOpen(false);
+                handleGetStarted(e);
+              }}
             >
-              <a href="/download" onClick={() => setIsOpen(false)}>
-                Get Started Free
-              </a>
+              {user ? 'Go to App' : 'Get Started Free'}
             </Button>
           </motion.div>
         )}

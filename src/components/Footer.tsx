@@ -56,7 +56,7 @@ const Footer = () => {
             {/* Social icons */}
             <div className="flex items-center space-x-4">
               <motion.a
-                href="#"
+                href="https://x.com/AjeetSingh76422"
                 className="text-gray-400 hover:text-white transition-colors"
                 whileHover={{ scale: 1.2, rotate: 5 }}
                 transition={{ type: "spring", stiffness: 300 }}
@@ -65,7 +65,7 @@ const Footer = () => {
                 <Twitter className="w-5 h-5" />
               </motion.a>
               <motion.a
-                href="#"
+                href="https://www.linkedin.com/in/ajeet-singh-063978177/"
                 className="text-gray-400 hover:text-white transition-colors"
                 whileHover={{ scale: 1.2, rotate: -5 }}
                 transition={{ type: "spring", stiffness: 300 }}
