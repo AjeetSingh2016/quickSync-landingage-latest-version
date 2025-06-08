@@ -19,6 +19,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const unsubscribe = auth.onAuthStateChanged((user) => {
       setUser(user);
       setLoading(false);
+
+      // Check if we're on the main domain and user is authenticated
+      if (user && window.location.hostname === 'www.quicksync.online') {
+        // Redirect to app subdomain
+        window.location.href = 'https://app.quicksync.online';
+      }
     });
 
     return () => unsubscribe();
@@ -29,9 +35,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const result = await signInWithPopup(auth, googleProvider);
       if (result.user) {
         // Redirect to app subdomain after successful sign in
-        const currentDomain = window.location.hostname;
-        const appDomain = `app.${currentDomain}`;
-        window.location.href = `https://${appDomain}`;
+        window.location.href = 'https://app.quicksync.online';
       }
     } catch (error) {
       console.error('Error signing in with Google:', error);
@@ -41,6 +45,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = async () => {
     try {
       await signOut(auth);
+      // If on app subdomain, redirect to main domain after logout
+      if (window.location.hostname === 'app.quicksync.online') {
+        window.location.href = 'https://www.quicksync.online';
+      }
     } catch (error) {
       console.error('Error signing out:', error);
     }
