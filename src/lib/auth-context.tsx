@@ -7,22 +7,14 @@ import {
   onAuthStateChanged,
   setPersistence,
   browserLocalPersistence,
-  User,
 } from 'firebase/auth';
 import { doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
 import { auth, db, googleProvider } from './firebase';
 
-interface AuthContextType {
-  user: User | null;
-  loading: boolean;
-  signInWithGoogle: () => Promise<void>;
-  logout: () => Promise<void>;
-}
+const AuthContext = createContext(null);
 
-const AuthContext = createContext<AuthContextType | null>(null);
-
-export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
+export function AuthProvider({ children }) {
+  const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
   // Set Firebase auth persistence on mount
@@ -33,8 +25,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // Listen for auth state changes - NO automatic redirects
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      console.log('🔍 Auth state changed on app.quicksync.online:', {
+        user: user ? { uid: user.uid, email: user.email } : null,
+        hostname: window.location.hostname,
+        authDomain: auth.config.authDomain
+      });
+      
       setUser(user);
       setLoading(false);
+      
+      // Optional: Redirect non-authenticated users to landing page
+      if (!user && window.location.hostname === 'app.quicksync.online') {
+        // Only redirect if user is on a protected route
+        const protectedRoutes = ['/dashboard', '/profile', '/settings'];
+        const currentPath = window.location.pathname;
+        
+        if (protectedRoutes.some(route => currentPath.startsWith(route))) {
+          console.log('🚫 No user found, redirecting to main site from protected route');
+          window.location.href = 'https://www.quicksync.online';
+        }
+      }
     });
 
     return () => unsubscribe();
@@ -58,10 +68,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         });
       }
 
-      // Redirect to app after successful login
-      if (window.location.hostname === 'www.quicksync.online') {
-        window.location.href = 'https://app.quicksync.online';
-      }
+      // Stay on current page after login - user is already where they want to be
     } catch (error) {
       console.error('Error signing in with Google:', error);
     }
@@ -70,7 +77,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = async () => {
     try {
       await firebaseSignOut(auth);
-      // Stay on current page after logout - user can navigate manually
+      
+      // Redirect to landing page after logout from app
+      if (window.location.hostname === 'app.quicksync.online') {
+        window.location.href = 'https://www.quicksync.online';
+      }
     } catch (error) {
       console.error('Error signing out:', error);
     }
